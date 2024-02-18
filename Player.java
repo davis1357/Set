@@ -204,6 +204,7 @@ public class Player implements Runnable {
         {
             table.removeToken(id, slotsWithTokens[i]);
             tokensPlaced--;
+            slotsWithTokens[i]=-1;
         }
         int ignored = table.countCards(); // this part is just for demonstration in the unit tests
         env.ui.setScore(id, score);
@@ -225,6 +226,7 @@ public class Player implements Runnable {
         {
             table.removeToken(id, slotsWithTokens[i]);
             tokensPlaced--;
+            slotsWithTokens[i]=-1;
         }
         try {
             long freezeTimer = env.config.penaltyFreezeMillis;

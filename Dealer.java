@@ -153,7 +153,12 @@ public class Dealer implements Runnable {
         {
             if(player.tokensPlaced==3)
             {
-                if(env.util.testSet(player.slotsWithTokens))
+                int[] cardsToCheck=new int[3];
+                for(int i=0;i<3;i++)
+                {
+                    cardsToCheck[i]=table.slotToCard[player.slotsWithTokens[i]];
+                }
+                if(env.util.testSet(cardsToCheck))
                 {
                     for(int i=0;i<3;i++)
                     {
