@@ -4,7 +4,7 @@ import bguspl.set.Env;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-//import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeUnit;
 
 //import java.util.concurrent.ScheduledExecutorService;
 //import java.util.concurrent.Executors;
@@ -59,7 +59,8 @@ public class Player implements Runnable {
 
     ///Additions
     private final BlockingQueue<Integer> actionQueue;
-    private boolean penaltyActive;
+    //TODO: change back to private
+    public boolean penaltyActive;
     public int tokensPlaced = 0;
     public int[] slotsWithTokens = new int[3];
 
@@ -115,6 +116,7 @@ public class Player implements Runnable {
         //RandomKeyPress();
         while (!terminate) {
             // TODO implement main player loop
+            
             try{
                 if(!penaltyActive)
                 {
@@ -143,30 +145,22 @@ public class Player implements Runnable {
             while (!terminate) {
                 // TODO implement player key press simulator
                 try {
-                    keyPressed((int) (Math.random() * 12));
-                    if(!penaltyActive)
-                    {
-                        int slot=actionQueue.take();
-                        doAction(slot);
-                    }
-                    synchronized (this) { wait(10); }
-                } catch (InterruptedException ignored) {}
+                    synchronized (this) { 
+                        keyPressed((int) (Math.random() * 12));
+                        if(!penaltyActive)
+                        {
+                            
+                            Integer newSlot=actionQueue.poll(100, TimeUnit.MILLISECONDS);
+                            if(newSlot!=null)
+                                doAction((int)newSlot);
+                        }
+                        Thread.sleep(100); }
+                } catch (InterruptedException ignored) {Thread.currentThread().interrupt();}
             }
             env.logger.info("thread " + Thread.currentThread().getName() + " terminated.");
         }, "computer-" + id);
         aiThread.start();
     }
-
-    // private void RandomKeyPress()
-    // {
-    //     int[] keys=env.config.playerKeys(id);
-    //     int ranKey = (int) (Math.random() * 12);
-    //     //keyPressed(ranKey);
-    //     for(int i=0;i<keys.length;i++)
-    //     {
-    //         System.out.println(keys[i]);
-    //     }
-    // }
 
     /**
      * Called when the game should be terminated.
@@ -215,6 +209,12 @@ public class Player implements Runnable {
         return arr;
     }
 
+    public void setPenalty(boolean isPenalty)
+    {
+        penaltyActive=isPenalty;
+        
+    }
+
     /**
      * This method is called when a key is pressed.
      *
@@ -230,7 +230,7 @@ public class Player implements Runnable {
     {
             if(!penaltyActive) {
                 if(tokensPlaced < 3) {
-                    if (!table.tokenPlaced.get(id).contains(slot) &&  (table.slotToCard[slot] != null)) {
+                    if (!table.tokenPlaced.get(id).contains(slot) &&  (table.slotToCard[slot] != null && (table.slotToCard[slot] != -1))) {
                         table.placeToken(id, slot);
                         slotsWithTokens[tokensPlaced] = slot;
                         tokensPlaced++;
