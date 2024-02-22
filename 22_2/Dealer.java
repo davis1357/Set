@@ -73,10 +73,11 @@ public class Dealer implements Runnable {
             timerLoop();
 
             updateTimerDisplay(true);
+
+            removeAllCardsFromTable();
             for (Player playerush : players) {
                 playerush.setPenalty(true);
             }
-            removeAllCardsFromTable();
         }
         announceWinners();
         env.logger.info("thread " + Thread.currentThread().getName() + " terminated.");
@@ -144,9 +145,11 @@ public class Dealer implements Runnable {
             if(player.tokensPlaced==3)
             {
                 int[] cardsToCheck=new int[3];
+                int[] cardsSlots=new int[3];
                 for(int i=0;i<cardsToCheck.length;i++)
                 {
                     cardsToCheck[i]=table.slotToCard[player.getSlotWithTokens(i)];
+                    cardsSlots[i]=player.getSlotWithTokens(i);
                 }
                 if(env.util.testSet(cardsToCheck))
                 {
@@ -162,9 +165,12 @@ public class Dealer implements Runnable {
                     player.point();
                     updateTimerDisplay(true);
                     for (Player pla_yer: players) {
-                        for(int j = 0 ; j < pla_yer.getSTokensPlaced() ; j++) {
-                            table.removeToken(pla_yer.id, pla_yer.getSlotWithTokens(j));
-                            pla_yer.emptyToken(j);
+                        for(int j = 0 ; j < pla_yer.slotsWithTokens.length ; j++) {
+                            if(pla_yer.getSlotWithTokens(0)==cardsSlots[0] || pla_yer.getSlotWithTokens(0)==cardsSlots[1] || pla_yer.getSlotWithTokens(0)==cardsSlots[2])
+                            { 
+                                table.removeToken(pla_yer.id, pla_yer.getSlotWithTokens(0));
+                                pla_yer.emptyToken(0);
+                            }
                         }
                     }
                 }

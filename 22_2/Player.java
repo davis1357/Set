@@ -100,7 +100,7 @@ public class Player implements Runnable {
                 actionQueue.put(action); // Add action to the queue
                 return true; // Action added successfully
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+                playerThread.interrupt();
             }
         }
         return false; // Queue is full, action not added
@@ -126,7 +126,7 @@ public class Player implements Runnable {
                 Thread.sleep(10);
             } catch(InterruptedException e)
             {
-                Thread.currentThread().interrupt();
+                playerThread.interrupt();
             }
         }
         ///
@@ -149,13 +149,12 @@ public class Player implements Runnable {
                         keyPressed((int) (Math.random() * 12));
                         if(!penaltyActive)
                         {
-                            
-                            Integer newSlot=actionQueue.poll(100, TimeUnit.MILLISECONDS);
+                            Integer newSlot=actionQueue.poll();
                             if(newSlot!=null)
                                 doAction((int)newSlot);
                         }
                         Thread.sleep(100); }
-                } catch (InterruptedException ignored) {Thread.currentThread().interrupt();}
+                } catch (InterruptedException ignored) {playerThread.interrupt();}
             }
             env.logger.info("thread " + Thread.currentThread().getName() + " terminated.");
         }, "computer-" + id);
